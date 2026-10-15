@@ -3,48 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo App Assignment</title>
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <h1>Mahadev Mahadev</h1>
+<body><div style="display:flex;flex-direction: column;">
 
-    <form action="/add" method="post">
-        <div>
-            <label for="title">Title : </label>
-            <input type="text" name="title" id="title">
-        </div>
-        <div>
-            <label for="description">Description : </label>
-            <input type="text" name="description" id="description">
-        </div>
-        <div>
-            <select name="priority" id="priority">
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-            </select>
-        </div>
-        <div>
-            <select name="is_complited" id="is_complited">
-                <option value="True">Completed</option>
-                <option value="False">Pending</option>
-            </select>
-        </div>
-        <div>
-            <label for="due_date">Due Date : </label>
-            <input type="date" name="due_date" id="due_date">
-        </div>
-        <div>
-            <button type="submit">Add Todo</button>
-        </div>
+    <form  action="/add" method="POST">
+        <table>
+            <thead>
+                <tr>
+                    <td>Title</td>
+                    <td>Description</td>
+                    <td>Priority</td>
+                    <td>Complete</td>
+                    <td>Due_date</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input type="text" id="title" name="title" required>
+                    </td>
+                    <td>
+                        <textarea id="description" name="description" rows="4" cols="40"></textarea>
+                    </td>
+                    <td>
+                        <select name="priority" id="priority">
+                            <option value="high">HIGH</option>
+                            <option value="medium">MEDIUM</option>
+                            <option value="low">LOW</option> 
+                        </select>
+                    </td>
+                    <td>
+                        <input type="checkbox" name="is_completed">Complete
+                    </td>
+                    <td>
+                        <input type="date" id="due_date" name="due_date">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="submit">Submit</button>
     </form>
     <div>
-        <form action="/get" method="get">
-                <button type="submit">Show Todo</button>
-        </form>
-    </div>
-    <div>
-                <table>
+        <div>
+                <table border="1">
+                     <h3>Pending Tasks</h3>
+                    <thead>
+                        <tr>
+                        <th>Id</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Is_Completed</th>
+                        <th>Due_date</th>
+                        <th>Edit</th>
+                        <th>Toggle</th>
+                        <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in pending %}
+                        <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ i.title }}</td>
+                        <td>{{ i.description }}</td>
+                        <td>{{ i.priority }}</td>
+                        <td>{{ i.is_complete }}</td>
+                        <td>{{ i.due_date.strftime('%d-%m-%Y') }}</td>
+                        <td>
+                            <a href="/edit/{{i.id}}">Edit</a>
+                        </td>
+                         <td>
+                            <a href="/toggle/{{ i.id }}">COMPLETE</a>
+                         </td>
+                        <td>
+                            <form action="/delete/{{i.id}}" method="POST">
+                                <button type="submit">DELETE</button>
+                            </form>
+                        </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div>
+              <h3>Completed Tasks</h3>
+
+                <table border="1">
                     <thead>
                         <tr>
                         <th>Id</th>
@@ -58,31 +104,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for i in data %}
+                        {% for i in complete %}
                         <tr>
-                        <td>{{ i.id }}</td>
+                        <td>{{ loop.index }}</td>
                         <td>{{ i.title }}</td>
                         <td>{{ i.description }}</td>
                         <td>{{ i.priority }}</td>
-                        <td>{{ i.is_complited }}</td>
+                        <td>{{ i.is_complete }}</td>
                         <td>{{ i.due_date.strftime('%d-%m-%Y') }}</td>
-                        <td><a href="/toggle/{{ i.id }}">Toggle</a></td>
                         <td>
-                            <form action="/edit" method="get">
-                                <input type="hidden" name="e_id" id="e_id" value="{{ i.id }}">
-                                <button type="submit">Edit Record</button>
-                            </form>
+                            <a href="/toggle/{{i.id}}">PENDING</a>
                         </td>
                         <td>
-                            <form action="/delete" method="POST">
-                                <input type="hidden" name="d_id" id="d_id" value="{{ i.id }}">
-                                <button type="submit">Delete</button>
+                            <form action="/delete/{{i.id}}" method="POST">
+                                <button type="submit">DELETE</button>
                             </form>
                         </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+    </div>
     </div>
 </body>
 </html>
