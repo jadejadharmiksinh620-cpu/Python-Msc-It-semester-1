@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+</head>
+<body>
+    <h1>New Task</h1>
+
+    <a href="/set-theme/light">Light</a>
+    <a href="/set-theme/light">Dark</a>
+    <form action="/add" method="POST">
+        <input type="text" name="title" placeholder="task title">
+        <input type="text" name="description" placeholder="description">
+        <input type="text" name="priority" placeholder="priority">
+        <button type="submit">Add Task</button>
+    </form>
+    <h3>Pending Tasks</h3>
+    {% for task in pending_task %}
+        <p>{{ task.title }}</p> 
+        <a href="/toggle/{{task.id}}">
+            Complete
+        </a>
+        <a href="/edit/{{task.id}}">
+            EDIT
+        </a>
+        <form action="/delete/{{task.id}}" method="POST">
+            <button type="submit"> Delete</button>
+        </form>
+    {% endfor %}
+    <h3>Complete Tasks</h3>
+    {% for task in complete_task %}
+        <p>{{ task.title }}</p>
+        <a href="/toggle/{{task.id}}">
+            Pending
+        </a>
+        <a href="/edit/{{task.id}}">
+            EDIT
+        </a>
+        <form action="/delete/{{task.id}}" method="POST">
+            <button type="submit"> Delete</button>
+        </form>
+    {% endfor %}
+</body>
+    <center>
+        <a href="/logout">Logout</a>
+    </center>
+
+</html>
