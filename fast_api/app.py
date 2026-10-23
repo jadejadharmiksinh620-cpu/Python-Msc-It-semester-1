@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Request,Form,Depends
+from fastapi import FastAPI,Request,Form,Depends,Response
 from fastapi.templating import Jinja2Templates
 from  fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware 
@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base,sessionmaker
 from sqlalchemy import Column,Integer,String,Boolean,DateTime
 from datetime import datetime
+
 
 
 Base=declarative_base()
@@ -75,7 +76,8 @@ def login(request:Request):
 def login(request:Request,username:str = Form(...)):
     print(username)
     request.session["username"]=username
-    return {"message":"Login Successful"}
+    return RedirectResponse("/",status_code=303)
+
 
 @app.post("/add")
 def add(
@@ -102,3 +104,52 @@ def toggle(id:int,db=Depends(get_db)):
 
     db.commit()
     return RedirectResponse("/",status_code=303)
+
+@app.get("/edit/{id}")
+def edit(request:Request,id:int,db=Depends(get_db)):
+    task=db.query(Task).filter(Task.id==id).first()
+    return templates.TemplateResponse(
+        request,
+        "edit.html",
+        {"task":task}
+    )
+
+@app.post("/update/{id}")
+def update(
+    id:int,request:Request,
+    title:str=Form(...),
+    description:str=Form(...),
+    priority:str=Form(...),
+    db=Depends(get_db)
+    ):
+        task=db.query(Task).filter(Task.id==id).first()
+
+        task.title=title
+        task.description=description
+        task.priority=priority
+
+        db.commit()
+
+        return RedirectResponse("/",status_code=303)
+
+@app.post("/delete/{id}")
+def dele(id:int,db=Depends(get_db)):
+    task=db.query(Task).filter(Task.id==id).first()
+
+    db.delete(task)
+    db.commit()
+
+    return RedirectResponse("/",status_code=303)
+
+@app.get("/set-theme/{theme}")
+def set_theme(theme:str):
+    response=RedirectResponse("/",status_code=303)
+    response.set_cookie(key="theme",value=theme)
+
+    return response
+
+@app.get("/logout")
+def logout(request:Request):
+    request.session.pop("username",None)
+
+    return RedirectResponse("/login",status_code=303)
